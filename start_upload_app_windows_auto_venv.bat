@@ -1,59 +1,71 @@
 @echo off
-chcp 65001 >nul
-setlocal
+title 名片系統 WebApp
+if /I not "%~1"=="__run__" (
+    start "Name Card System" cmd /k call "%~f0" __run__
+    exit /b 0
+)
 
-REM Move to project directory (location of this .bat file)
-cd /d "%~dp0"
+setlocal EnableExtensions
+chcp 65001 >nul 2>&1
+
+set "ROOT=%~dp0"
+cd /d "%ROOT%" || goto :fail_cd
 
 echo ======================================
 echo Name Card Upload App (Auto venv)
 echo ======================================
+echo 專案資料夾：
+echo   "%ROOT%"
+echo.
 
-set "VENV_PY=.venv\Scripts\python.exe"
+set "VENV_PY=%ROOT%.venv\Scripts\python.exe"
 
-REM 1) Find a system Python to create venv if needed
 if not exist "%VENV_PY%" (
     echo [1/5] Looking for Python 3...
-    py -3 -m venv .venv >nul 2>nul
-    if not exist "%VENV_PY%" python -m venv .venv >nul 2>nul
-    if not exist "%VENV_PY%" python3 -m venv .venv >nul 2>nul
+    py -3 -m venv "%ROOT%.venv" 2>nul
+    if not exist "%VENV_PY%" python -m venv "%ROOT%.venv" 2>nul
+    if not exist "%VENV_PY%" python3 -m venv "%ROOT%.venv" 2>nul
 )
 
 if not exist "%VENV_PY%" (
     echo.
     echo [ERROR] 找不到 Python 3。
+    echo 請先雙擊 install_python_windows.bat
     echo.
-    call "%~dp0install_python_windows.bat"
-    exit /b 1
+    goto :fail
 )
 
-REM 2) Upgrade pip (best effort)
 echo [2/5] Upgrading pip...
 "%VENV_PY%" -m pip install --upgrade pip
 
-REM 3) Install dependencies
 echo [3/5] Installing requirements...
-"%VENV_PY%" -m pip install -r requirements.txt
-if errorlevel 1 (
-    echo [ERROR] Failed to install dependencies.
-    pause
-    exit /b 1
-)
+"%VENV_PY%" -m pip install -r "%ROOT%requirements.txt"
+if errorlevel 1 goto :fail
 
-REM 4) Start app and open browser
 echo [4/5] Opening browser...
 start "" "http://127.0.0.1:5000"
 
 echo [5/5] Starting web app...
 echo 請保持此視窗開啟。關閉視窗即停止系統。
 echo.
-"%VENV_PY%" app.py
+"%VENV_PY%" "%ROOT%app.py"
+if errorlevel 1 goto :fail
+goto :done
 
-if errorlevel 1 (
-    echo.
-    echo [ERROR] App exited with an error.
-    pause
-    exit /b 1
-)
+:fail_cd
+echo [ERROR] 無法進入資料夾：
+echo   "%ROOT%"
+echo 建議移到 C:\Name_card_system 後再試。
+goto :done
 
+:fail
+echo.
+echo [ERROR] 啟動失敗。
+goto :done
+
+:done
+echo.
+echo 按任意鍵關閉此視窗...
+pause >nul
 endlocal
+exit /b 0

@@ -1,14 +1,25 @@
 @echo off
-chcp 65001 >nul
-setlocal EnableDelayedExpansion
+title 檢查 Python 環境
+if /I not "%~1"=="__run__" (
+    start "Check Python" cmd /k call "%~f0" __run__
+    exit /b 0
+)
+
+setlocal EnableExtensions EnableDelayedExpansion
+chcp 65001 >nul 2>&1
 
 set "ROOT=%~dp0"
-cd /d "%ROOT%"
+cd /d "%ROOT%" || goto :fail_cd
+
+set "LOG=%ROOT%check_log.txt"
+echo Check started: %DATE% %TIME% > "%LOG%"
+echo Project folder: "%ROOT%" >> "%LOG%"
 
 echo ======================================
 echo 檢查 Python 與打包環境
 echo ======================================
-echo 專案資料夾：%ROOT%
+echo 專案資料夾：
+echo   "%ROOT%"
 echo.
 
 set "FOUND=0"
@@ -25,6 +36,7 @@ if not errorlevel 1 (
         set "FOUND=1"
         set "PYTHON_CMD=py -3"
         echo   [OK] py -3 可用
+        py -3 --version >> "%LOG%" 2>&1
     ) else (
         echo   [--] py -3 不可用
     )
@@ -41,6 +53,7 @@ if not errorlevel 1 (
             set "FOUND=1"
             set "PYTHON_CMD=python"
         )
+        python --version >> "%LOG%" 2>&1
     )
 ) else (
     echo   [--] 找不到 python
@@ -64,8 +77,7 @@ if "!FOUND!"=="0" (
     echo 安裝時務必勾選：Add python.exe to PATH
     echo 安裝完成後，關閉並重新開啟命令提示字元，再執行此檢查。
     echo.
-    pause
-    exit /b 1
+    goto :done
 )
 
 echo [結果] 已安裝 Python 3
@@ -84,12 +96,11 @@ echo.
 
 echo [3] 檢查 pip ...
 if exist "%ROOT%.venv\Scripts\python.exe" (
-    set "CHECK_PY=%ROOT%.venv\Scripts\python.exe"
-    "!CHECK_PY!" -m pip --version >nul 2>nul
+    "%ROOT%.venv\Scripts\python.exe" -m pip --version >nul 2>nul
     if errorlevel 1 (
         echo   [--] pip 不可用
     ) else (
-        "!CHECK_PY!" -m pip --version
+        "%ROOT%.venv\Scripts\python.exe" -m pip --version
         echo   [OK] pip 可用
     )
 ) else if "!PYTHON_CMD!"=="py -3" (
@@ -130,6 +141,8 @@ echo ======================================
 echo 檢查完成
 echo ======================================
 echo.
+echo 日誌檔案："%LOG%"
+echo.
 echo 若 [1] 顯示已安裝 Python（例如 3.13.14）：
 echo   - 啟動系統：雙擊 啟動名片系統_Windows.bat
 echo   - 打包 exe：雙擊 build_windows_exe.bat
@@ -137,5 +150,20 @@ echo.
 echo 若 [1] 顯示未安裝：
 echo   - 先雙擊 install_python_windows.bat
 echo.
-pause
+echo 若仍然閃退，請把專案移到簡單路徑，例如：
+echo   C:\Name_card_system
+echo.
+goto :done
+
+:fail_cd
+echo [ERROR] 無法進入資料夾：
+echo   "%ROOT%"
+echo.
+echo 建議把專案移到 C:\Name_card_system 後再試。
+goto :done
+
+:done
+echo 按任意鍵關閉此視窗...
+pause >nul
 endlocal
+exit /b 0

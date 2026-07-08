@@ -1,5 +1,11 @@
 @echo off
-chcp 65001 >nul
+title 安裝 Python 3
+if /I not "%~1"=="__run__" (
+    start "Install Python" cmd /k call "%~f0" __run__
+    exit /b 0
+)
+
+chcp 65001 >nul 2>&1
 setlocal
 
 echo ======================================
@@ -16,11 +22,12 @@ echo   3. 執行安裝程式時，務必勾選：
 echo      [x] Add python.exe to PATH
 echo   4. 按 Install Now 完成安裝
 echo   5. 關閉此視窗，重新雙擊：
-echo      start_upload_app_windows_auto_venv.bat
+echo      check_python_windows.bat
 echo.
 echo ======================================
 
 start "" "https://www.python.org/downloads/windows/"
 
-pause
+echo 按任意鍵關閉此視窗...
+pause >nul
 endlocal

@@ -12,6 +12,8 @@
 4. 安裝時**務必勾選** `Add python.exe to PATH`
 5. 安裝完成後，雙擊 `啟動名片系統_Windows.bat`
 
+> 若 `.bat` 閃退，請把整個專案資料夾移到簡單路徑，例如 `C:\Name_card_system`（避免路徑含 `&` 或特殊字元）。
+
 ### 日常使用
 
 雙擊 `啟動名片系統_Windows.bat`（或 `start_upload_app_windows_auto_venv.bat`）
