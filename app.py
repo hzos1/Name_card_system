@@ -17,14 +17,16 @@ from excel_manager import (
     UPLOAD_FOLDER_NAME,
     scan_card_link_text,
 )
+from paths import EXCEL_FILENAME, base_dir, resource_dir
 
-BASE_DIR = Path(__file__).resolve().parent
-EXCEL_PATH = BASE_DIR / "A Namecard-system-database.xlsx"
+BASE_DIR = base_dir()
+RESOURCE_DIR = resource_dir()
+EXCEL_PATH = BASE_DIR / EXCEL_FILENAME
 UPLOAD_DIR = BASE_DIR / UPLOAD_FOLDER_NAME
 ALT_PDF_DIR = BASE_DIR / "Namecard-system-database"
 ALLOWED_EXTENSIONS = {".pdf"}
 
-app = Flask(__name__, template_folder=str(BASE_DIR / "templates"))
+app = Flask(__name__, template_folder=str(RESOURCE_DIR / "templates"))
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 PDF_SEARCH_DIRS = [
@@ -312,14 +314,6 @@ def index() -> str:
 
 
 if __name__ == "__main__":
-    import os
-    import threading
-    import webbrowser
+    from run_app import main
 
-    def _open_browser() -> None:
-        webbrowser.open("http://127.0.0.1:5000")
-
-    if os.environ.get("WERKZEUG_RUN_MAIN") != "true":
-        threading.Timer(1.0, _open_browser).start()
-
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    main()
