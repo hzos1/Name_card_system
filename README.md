@@ -6,13 +6,35 @@
 
 ### 第一次使用（電腦未安裝 Python）
 
-1. 雙擊 `check_python_windows.bat` 檢查是否已安裝 Python
-2. 若未安裝，雙擊 `install_python_windows.bat`
-3. 下載並安裝 Python 3.11、3.12 或 3.13（例如 3.13.14）
+1. 把專案放到簡單路徑，例如 `C:\Name_card_system`
+2. 雙擊 `check_python_windows.bat` 檢查是否已安裝 Python
+3. 若未安裝，雙擊 `install_python_windows.bat`（依畫面安裝 Python）
 4. 安裝時**務必勾選** `Add python.exe to PATH`
-5. 安裝完成後，雙擊 `啟動名片系統_Windows.bat`
+5. 雙擊 `setup_venv_windows.bat` 建立 `.venv`
+6. 雙擊 `啟動名片系統_Windows.bat`
 
 > 若 `.bat` 閃退，請把整個專案資料夾移到簡單路徑，例如 `C:\Name_card_system`（避免路徑含 `&` 或特殊字元）。
+
+### 手動建立 .venv（命令提示字元）
+
+在 **cmd** 中執行（把路徑改成你的專案位置）：
+
+```bat
+cd C:\Name_card_system
+py -3 --version
+py -3 -m venv .venv
+.venv\Scripts\python.exe -m pip install --upgrade pip
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe app.py
+```
+
+若 `py -3` 不行，改用 `python`：
+
+```bat
+python -m venv .venv
+```
+
+成功後會看到 `.venv` 資料夾，裡面有 `Scripts\python.exe`。
 
 ### 日常使用
 
