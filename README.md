@@ -6,10 +6,11 @@
 
 ### 第一次使用（電腦未安裝 Python）
 
-1. 雙擊 `install_python_windows.bat`
-2. 依畫面指示安裝 Python 3.11 或 3.12
-3. 安裝時**務必勾選** `Add python.exe to PATH`
-4. 安裝完成後，雙擊 `啟動名片系統_Windows.bat`
+1. 雙擊 `check_python_windows.bat` 檢查是否已安裝 Python
+2. 若未安裝，雙擊 `install_python_windows.bat`
+3. 下載並安裝 Python 3.11、3.12 或 3.13（例如 3.13.14）
+4. 安裝時**務必勾選** `Add python.exe to PATH`
+5. 安裝完成後，雙擊 `啟動名片系統_Windows.bat`
 
 ### 日常使用
 

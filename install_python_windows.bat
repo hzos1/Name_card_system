@@ -11,7 +11,7 @@ echo.
 echo 請依照以下步驟安裝：
 echo.
 echo   1. 瀏覽器會自動打開 Python 下載頁
-echo   2. 下載 Python 3.11 或 3.12（Windows installer）
+echo   2. 下載 Python 3.11、3.12 或 3.13（Windows installer）
 echo   3. 執行安裝程式時，務必勾選：
 echo      [x] Add python.exe to PATH
 echo   4. 按 Install Now 完成安裝
