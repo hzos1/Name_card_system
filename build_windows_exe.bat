@@ -48,7 +48,7 @@ if not exist "%VENV_PY%" (
 if not exist "%VENV_PY%" (
     echo.
     echo [ERROR] 無法建立 .venv
-    echo 請先執行 check_python_windows.bat 檢查 Python。
+    echo 請先安裝 Python 3，並勾選 Add python.exe to PATH。
     echo.
     echo 常見原因：
     echo   1. 未安裝 Python 3
@@ -80,6 +80,14 @@ if exist "%ROOT%file Name_Card_system\*" (
 if exist "%ROOT%A Namecard-system-database.xlsx" (
     copy /Y "%ROOT%A Namecard-system-database.xlsx" "%DIST_DIR%\" >> "%LOG%" 2>&1
 )
+(
+    echo @echo off
+    echo title 名片系統（區域網路^）
+    echo cd /d "%%~dp0"
+    echo set NAMECARD_HOST=0.0.0.0
+    echo Name_card_system.exe
+) > "%DIST_DIR%\啟動名片系統_區域網路.bat"
+powershell -NoProfile -Command "$s=New-Object -ComObject WScript.Shell; $l=$s.CreateShortcut('%DIST_DIR%\啟動名片系統.lnk'); $l.TargetPath='%DIST_DIR%\Name_card_system.exe'; $l.WorkingDirectory='%DIST_DIR%'; $l.Description='名片 OCR 系統'; $l.IconLocation='%DIST_DIR%\Name_card_system.exe,0'; $l.Save()" >> "%LOG%" 2>&1
 
 echo.
 echo ======================================
@@ -90,7 +98,7 @@ echo   %DIST_DIR%
 echo.
 echo 使用方式：
 echo   1. 複製整個 dist\Name_card_system 資料夾到其他 Windows 電腦
-echo   2. 雙擊 Name_card_system.exe
+echo   2. 雙擊「啟動名片系統.lnk」或 Name_card_system.exe
 echo.
 goto :done
 
