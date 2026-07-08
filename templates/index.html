@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>名片系統 WebApp</title>
+    <style>
+      :root {
+        --bg: #f6f8fb;
+        --card: #ffffff;
+        --line: #d8dee6;
+        --text: #0f172a;
+        --muted: #475569;
+        --accent: #2563eb;
+      }
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      .page-title {
+        margin: 0 0 1rem;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .panel {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 1rem;
+      }
+      label {
+        display: block;
+        margin-top: 0.75rem;
+        font-weight: 600;
+      }
+      input, button, .btn-link {
+        margin-top: 0.35rem;
+      }
+      input[type="text"], input[type="date"], input[type="file"], input[type="search"] {
+        width: 100%;
+        max-width: 100%;
+        padding: 0.55rem;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+      button {
+        margin-top: 1rem;
+        padding: 0.6rem 1rem;
+        border: 0;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+      }
+      .search-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.5rem;
+        align-items: end;
+      }
+      .btn-link {
+        display: inline-block;
+        text-decoration: none;
+        padding: 0.4rem 0.7rem;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--text);
+        background: #fff;
+      }
+      .error {
+        background: #ffebe9;
+        color: #b42318;
+        border: 1px solid #fda29b;
+        padding: 0.7rem;
+        border-radius: 6px;
+        margin-bottom: 0.8rem;
+      }
+      .ok {
+        background: #ecfdf3;
+        color: #067647;
+        border: 1px solid #6ce9a6;
+        padding: 0.7rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+      }
+      .hint {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin-top: 0.2rem;
+      }
+      .results {
+        margin-top: 1rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+      }
+      th, td {
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        padding: 0.45rem 0.25rem;
+        vertical-align: top;
+      }
+      th {
+        color: var(--muted);
+      }
+      .preview {
+        margin-top: 1rem;
+      }
+      iframe {
+        width: 100%;
+        min-height: 520px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+      .scan-result {
+        margin-top: 1rem;
+      }
+      .scan-result h3 {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+      }
+      .edit-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem 0.8rem;
+        margin-top: 0.8rem;
+      }
+      .edit-grid label {
+        margin-top: 0;
+      }
+      .edit-actions {
+        margin-top: 0.9rem;
+      }
+      .scan-table th {
+        width: 38%;
+        white-space: nowrap;
+      }
+      .empty {
+        color: var(--muted);
+        margin-top: 0.8rem;
+      }
+      @media (max-width: 960px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .edit-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="page-title">名片系統 WebApp</h1>
+      <p class="hint">支援上傳名片 PDF、寫入 Excel、搜尋名片資料庫，並直接預覽對應卡片。</p>
+
+      <div class="layout">
+        <section class="panel">
+          <h2>上傳新名片</h2>
+          {% if error %}
+            <div class="error">{{ error }}</div>
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="scan">
+            <label for="event">Event</label>
+            <input id="event" name="event" type="text" placeholder="例如：HKPASEA" required>
+
+            <label for="scan_date">掃描日期</label>
+            <input id="scan_date" name="scan_date" type="date" required>
+
+            <label for="card_pdf">名片 PDF</label>
+            <input id="card_pdf" name="card_pdf" type="file" accept="application/pdf,.pdf" required>
+
+            <button type="submit">先掃描（可修改後再上傳）</button>
+          </form>
+
+          {% if draft %}
+            <div class="scan-result">
+              <h3>掃描結果（可修改）</h3>
+              <form method="post">
+                <input type="hidden" name="action" value="confirm">
+                <input type="hidden" name="saved_file_name" value="{{ draft.saved_file_name }}">
+
+                <label for="draft_event">Event</label>
+                <input id="draft_event" name="event" type="text" value="{{ draft.event }}" required>
+
+                <label for="draft_scan_date">掃描日期</label>
+                <input id="draft_scan_date" name="scan_date" type="date" value="{{ draft.scan_date }}" required>
+
+                <div class="edit-grid">
+                  {% for field in draft.fields %}
+                    <div>
+                      <label for="field_{{ loop.index }}">{{ field.column }}</label>
+                      <input
+                        id="field_{{ loop.index }}"
+                        name="{{ field.column }}"
+                        type="text"
+                        value="{{ field.value }}"
+                      >
+                    </div>
+                  {% endfor %}
+                </div>
+
+                <div class="edit-actions">
+                  <button type="submit">確認後正式上傳到 Excel</button>
+                  {% if draft.pdf_url %}
+                    <a class="btn-link" href="{{ draft.pdf_url }}" target="_blank">開啟原始 PDF</a>
+                  {% endif %}
+                </div>
+              </form>
+            </div>
+          {% endif %}
+
+          {% if result %}
+            <div class="ok">
+              <strong>完成！已寫入 Excel。</strong>
+              {% if result.pdf_url %}
+                <a href="{{ result.pdf_url }}" target="_blank">開啟 PDF</a>
+              {% endif %}
+            </div>
+            <div class="scan-result">
+              <h3>掃描結果（全部欄位）</h3>
+              <table class="scan-table">
+                <tbody>
+                  {% for field in result.fields %}
+                    <tr>
+                      <th>{{ field.column }}</th>
+                      <td>{{ field.value }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+        </section>
+
+        <section class="panel">
+          <h2>搜尋名片資料庫</h2>
+          <form method="get">
+            <div class="search-row">
+              <div>
+                <label for="q">關鍵字</label>
+                <input id="q" name="q" type="search" value="{{ query }}" placeholder="輸入卡片ID、姓名、公司、電話、Event...">
+              </div>
+              <button type="submit">搜尋</button>
+            </div>
+          </form>
+
+          <div class="results">
+            {% if query and not search_results %}
+              <div class="empty">找不到符合「{{ query }}」的資料。</div>
+            {% elif search_results %}
+              <table>
+                <thead>
+                  <tr>
+                    <th>Card ID</th>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Tel</th>
+                    <th>Company Tel</th>
+                    <th>Event</th>
+                    <th>PDF</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in search_results %}
+                    <tr>
+                      <td>{{ item.card_id }}</td>
+                      <td>{{ item.name }}</td>
+                      <td>{{ item.company }}</td>
+                      <td>{{ item.tel }}</td>
+                      <td>{{ item.company_tel }}</td>
+                      <td>{{ item.event }}</td>
+                      <td>
+                        {% if item.pdf_url %}
+                          <a class="btn-link" href="?q={{ query }}&preview={{ item.pdf_name }}">預覽</a>
+                          <a class="btn-link" href="{{ item.pdf_url }}" target="_blank">開啟</a>
+                        {% else %}
+                          NA
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <div class="empty">輸入關鍵字即可查詢資料庫中的名片。</div>
+            {% endif %}
+          </div>
+        </section>
+      </div>
+
+      {% if preview_url %}
+        <section class="panel preview">
+          <h2>PDF 預覽</h2>
+          <iframe src="{{ preview_url }}"></iframe>
+        </section>
+      {% endif %}
+    </div>
+  </body>
+</html>
